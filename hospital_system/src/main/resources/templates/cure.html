@@ -1,0 +1,184 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <script src="js/vue.js"></script>
+    <!-- import CSS -->
+    <link rel="stylesheet" href="css/element-ui.css">
+    <!-- import JavaScript -->
+    <script src="js/element-ui.js"></script>
+
+    <style>
+        p {
+            border-bottom: 1px solid black;
+            background-color: aqua;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <p>医生信息</p>
+        <el-row>
+            <el-col :span="4">姓名：刘华强</el-col>
+            <el-col :span="4">科室信息：内科</el-col>
+            <el-col :span="4">日期:2022-12-24</el-col>
+        </el-row>
+        <p>病人列表</p>
+        <el-row>
+            <el-col :span="12">
+                <el-table :data="patientData" border height="200px">
+                    <el-table-column prop="number" label="序号"></el-table-column>
+                    <el-table-column prop="name" label="姓名"></el-table-column>
+                </el-table>
+            </el-col>
+            <el-col :span="12">
+                <el-form :inline="true" class="demo-form-inline">
+                    <el-form-item>
+                        <el-input placeholder="输入药物信息" />
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="findDoctors">查找</el-button>
+                    </el-form-item>
+                </el-form>
+                <el-table :data="medicineData" border style="width: 100%" height="200px">
+                    <el-table-column prop="sort" label="编号"></el-table-column>
+                    <el-table-column prop="name" label="名称"></el-table-column>
+                    <el-table-column prop="desc" label="描述" style="overflow: scroll;"></el-table-column>
+                    <el-table-column prop="usage" label="用法"></el-table-column>
+                    <el-table-column prop="total" label="总量"></el-table-column>
+                    <el-table-column prop="price" label="价格"></el-table-column>
+                    <el-table-column fixed="right" label="操作" width="120">
+                        <template #default>
+                            <el-button type="primary" size="small" @click="handleClick">增加</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-col>
+        </el-row>
+
+        <p>当前病人，<span style="font-weight: bold;color: yellow;">刘强</span> 用药信息</p>
+        <el-form-item label="症状描述">
+            <el-input v-model="desc" type="textarea" />
+        </el-form-item>
+        <el-table :data="prescribeData" border style="width: 100%" height="200px">
+            <el-table-column prop="sort" label="编号"></el-table-column>
+            <el-table-column prop="name" label="名称"></el-table-column>
+            <el-table-column prop="usage" label="用法">
+                <template #default="scope">
+                    <el-input v-model="scope.row.usage"></el-input>
+                </template>
+            </el-table-column>
+            <el-table-column prop="number" label="数量">
+                <template #default="scope">
+                    <el-input v-model="scope.row.number"></el-input>
+                </template>
+            </el-table-column>
+            <el-table-column prop="price" label="价格"></el-table-column>
+            <el-table-column fixed="right" label="操作" width="120">
+                <template #default>
+                    <el-button type="primary" size="small" @click="handleClick">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <!-- 对话框 -->
+        <el-dialog v-model="dialogTableVisible" title="处方信息预览" style="width: 80%;">
+            <p style="font-weight: bold;background-color: aqua;">病人基本信息：</p>
+            <el-row>
+                <el-col :span="6">姓名：刘华强</el-col>
+                <el-col :span="6">性别：男</el-col>
+                <el-col :span="6">年龄：20</el-col>
+                <el-col :span="6">就诊科室：内科</el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="6">诊疗卡号：211899098</el-col>
+                <el-col :span="6">家庭住址：广东工业大学计算机学院</el-col>
+                <el-col :span="6">联系电话：13188889999</el-col>
+                <el-col :span="6">就诊日期：2022-12-22</el-col>
+            </el-row>
+            <p style="font-weight: bold;background-color: aqua;">处方信息：</p>
+            <el-form-item label="症状描述">
+                <el-input v-model="desc" type="textarea" readonly />
+            </el-form-item>
+            <el-table :data="prescribeData" border style="width: 100%" height="200px">
+                <el-table-column prop="sort" label="编号"></el-table-column>
+                <el-table-column prop="name" label="名称"></el-table-column>
+                <el-table-column prop="usage" label="用法"></el-table-column>
+                <el-table-column prop="number" label="数量"></el-table-column>
+                <el-table-column prop="price" label="价格"></el-table-column>
+            </el-table>
+            <el-row>
+                <el-col :span="8">医生姓名：刘华强</el-col>
+                <el-col :span="8">日期：2022-12-20</el-col>
+            </el-row>
+        </el-dialog>
+        <el-button type="primary" @click="dialogTableVisible = true">打印预览</el-button>
+        <el-button type="primary" @click="handleClick">提交确认</el-button>
+    </div>
+    <script>
+
+        const App = {
+            data() {
+                return {
+                    patientData: [{ number: 1, name: '张山' }, { number: 2, name: '张山' }, { number: 3, name: '张山' },],
+                    medicineData: [
+                        {
+                            sort: 1,
+                            name: '阿司匹林',
+                            desc: "解热镇痛药，用于发热、疼痛及类风湿关节炎等",
+                            usage: '一日三次，每次4粒',
+                            total: 1000,
+                            price: '￥40元'
+                        },
+                        {
+                            sort: 1,
+                            name: '阿司匹林',
+                            desc: "解热镇痛药，用于发热、疼痛及类风湿关节炎等",
+                            usage: '一日三次，每次4粒',
+                            total: 1000,
+                            price: '￥40元'
+                        },
+                        {
+                            sort: 1,
+                            name: '阿司匹林',
+                            desc: "解热镇痛药，用于发热、疼痛及类风湿关节炎等",
+                            usage: '一日三次，每次4粒',
+                            total: 1000,
+                            price: '￥40元'
+                        },
+                    ],
+                    desc: '',
+                    dialogTableVisible: false,
+                    prescribeData: [
+                        {
+                            sort: 1,
+                            name: '阿司匹林',
+                            usage: '一日三次，每次4粒',
+                            number: 10,
+                            price: 40
+                        },
+                        {
+                            sort: 1,
+                            name: '阿司匹林',
+                            usage: '一日三次，每次4粒',
+                            number: 10,
+                            price: 40
+                        },
+                    ]
+                }
+
+            },
+            methods: {
+                open() {
+
+                }
+            },
+        };
+        const app = Vue.createApp(App);
+        app.use(ElementPlus);
+        app.mount("#app");
+    </script>
+</body>
+
+</html>

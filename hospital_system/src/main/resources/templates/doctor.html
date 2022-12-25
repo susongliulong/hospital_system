@@ -1,0 +1,260 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <script src="js/vue.js"></script>
+    <!-- import CSS -->
+    <link rel="stylesheet" href="css/element-ui.css">
+    <!-- import JavaScript -->
+    <script src="js/element-ui.js"></script>
+    <script src="js/axios.min.js"></script>
+    <title>Element Plus demo</title>
+</head>
+
+<body>
+    <div id="app">
+        <el-form :model="form" label-width="120px">
+
+            <el-row>
+                <el-col :span="8">
+                    <el-form-item label="姓名">
+                        <el-input v-model="form.name" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="年龄">
+                        <el-input v-model="form.age" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="性别">
+                        <el-radio-group v-model="form.sex">
+                            <el-radio label="男">男</el-radio>
+                            <el-radio label="女">女</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-row>
+                <el-col :span="8">
+                    <el-form-item label="身份证号码">
+                        <el-input v-model="form.idNumber" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="电话号码">
+                        <el-input v-model="form.telephone" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="家庭住址">
+                        <el-input v-model="form.address" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-row>
+
+                <el-col :span="12">
+                    <el-form-item label="密码">
+                        <el-input v-model="form.password" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="出生日期">
+                        <el-col :span="11">
+                            <el-date-picker v-model="form.birthday" type="date" placeholder="Pick a date"
+                                style="width: 100%" />
+                        </el-col>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+
+                <el-col :span="12">
+                    <el-form-item label="开始工作时间">
+                        <el-date-picker v-model="form.startWork" type="date" placeholder="Pick a date"
+                            style="width: 100%" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item label="所在部门">
+                        <el-select v-model="form.depId" placeholder="选择部门">
+                            <el-option v-for="department in departments" :label="department.name"
+                                :value="department.id"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+
+                <el-col :span="8">
+                    <el-form-item label="学历">
+                        <el-select v-model="form.degree" placeholder="选择学历">
+                            <el-option label="专科" value="专科"></el-option>
+                            <el-option label="本科" value="本科"></el-option>
+                            <el-option label="研究生" value="研究生"></el-option>
+                            <el-option label="博士" value="博士"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="职称">
+                        <el-select v-model="form.title" placeholder="选择职称">
+                            <el-option label="住院医师" value="住院医师"></el-option>
+                            <el-option label="主治医师" value="主治医师"></el-option>
+                            <el-option label="副主任医师" value="副主任医师"></el-option>
+                            <el-option label="主任医师" value="主任医师"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-form-item label="个人简介">
+                <el-input v-model="form.description" type="textarea" />
+            </el-form-item>
+            <el-form-item label="擅长领域">
+                <el-input v-model="form.feature" type="textarea" />
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="onSubmit">确认修改</el-button>
+                <el-button>取消</el-button>
+            </el-form-item>
+        </el-form>
+
+        <p style="font-weight: bold;">出诊信息</p>
+        <el-table :data="tableData" border style="width: 100%" max-height="300px">
+            <el-table-column prop="date" label="出诊日期">
+                <template #default="scope">
+                    <el-date-picker v-model="scope.row.date" type="date" placeholder="请选择日期" />
+                </template>
+            </el-table-column>
+            <el-table-column prop="time" label="出诊时间">
+                <template #default="scope">
+                    <el-select v-model="scope.row.time" placeholder="选择出诊时间">
+                        <el-option label="上午8：30到9：30" value="上午8：30到9：30"></el-option>
+                        <el-option label="上午9：30到10：30" value="上午9：30到10：30"></el-option>
+                        <el-option label="上午10：30到11：30" value="上午10：30到11：30"></el-option>
+                        <el-option label="下午2：30到3：30" value="下午2：30到3：30"></el-option>
+                        <el-option label="下午3：30到4：30" value="下午3：30到4：30"></el-option>
+                        <el-option label="下午4：30到5：30" value="下午4：30到5：30"></el-option>
+                    </el-select>
+                </template>
+            </el-table-column>
+            <el-table-column prop="department" label="出诊科室">
+                <template #default="scope">
+                    <el-input v-model="scope.row.department"></el-input>
+                </template>
+            </el-table-column>
+            <el-table-column prop="total" label="病人限制">
+                <template #default="scope">
+                    <el-input v-model="scope.row.total"></el-input>
+                </template>
+            </el-table-column>
+            <el-table-column prop="price" label="挂号价格">
+                <template #default="scope">
+                    <el-input v-model="scope.row.price"></el-input>
+                </template>
+            </el-table-column>
+            <el-table-column fixed="right" label="操作" width="120">
+                <template #default="scope">
+                    <el-button link type="primary" size="small" @click.prevent="deleteRow(scope.$index)">
+                        删除
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <el-button type="primary" @click="onAddItem">新增</el-button>
+        <el-button type="primary" @click="onSubmit">确认修改</el-button>
+    </div>
+    <script>
+        const App = {
+            data() {
+                return {
+                    form: {
+                        name: '刘华强',
+                        telephone: '19860205976',
+                        sex: '男',
+                        age: 43,
+                        idNumber: '340826' + '19801225' + '8967',
+                        address: '北京朝阳区阳光大道123',
+                        password: '123456',
+                        birthday: '1980-12-25',
+                        startWork: '2010-10-12',
+                        description: '肝病科学科带头人、学术带头人，肝病科科主任广东省名中医，主任中医师，教授，二级正高，博士生导师，全国第六批名中医药专家学术继承指导老师，广东省首批名中医师承项目指导老师，中医哲学访问学者。国家中医肝病重点专科协作组组长。广东省保健协会首席专家顾问，广东省保健协会健康服务示范基地首席专家',
+                        feature: '擅长：辨证施治、中医心理治疗、情志疗法、中医外治法及药膳食疗、养生保健，提出并实施多维立体系列疗法体系防治肝胆系统疾病（包括病毒性肝炎、肝纤维化、肝硬化、脂肪肝、酒精肝、药物性肝病、自身免疫性肝病等），疗效显著',
+                        degree: '博士',
+                        depId: '',//部门id
+                        title: '主治医师'//职称
+                    },
+                    tableData: [
+                        {
+                            date: '2022-12-14',
+                            time: '上午8：30到11：30',
+                            department: '内科',
+                            total: 40,
+                            price: 12
+                        },
+                        {
+                            date: '2022-12-14',
+                            time: '上午8：30到11：30',
+                            department: '内科',
+                            total: 40,
+                            price: 12
+                        },
+                        {
+                            date: '2022-12-14',
+                            time: '上午8：30到11：30',
+                            department: '内科',
+                            total: 40,
+                            price: 12
+                        }
+                    ],
+                    departments: [],
+                }
+            },
+            //钩子函数
+            created() {
+                // 请求部门信息
+                this.initDepartments();
+            },
+            methods: {
+                deleteRow(index) {
+                    this.tableData.splice(index, 1);
+                },
+                onAddItem() {
+                    this.tableData.value.push({
+                        date: '',
+                        time: '上午8：30到11：30',
+                        department: '内科',
+                        total: 40,
+                        price: 12
+                    })
+                },
+                //请求部门信息
+                initDepartments() {
+                    axios.get('http://localhost:8080/department/list').then((resp) => {
+                        this.departments = resp.data.result;
+                    })
+                },
+                //医生注册修改个人信息
+                onSubmit() {
+
+                    axios({
+                        url: 'http://localhost:8080/doctor/register',
+                        method: 'post',
+                        data: this.form,
+                    }).then(resp => {
+                        alert(resp.data.message);
+                    })
+                }
+            },
+        };
+        const app = Vue.createApp(App);
+        app.use(ElementPlus);
+        app.mount("#app");
+    </script>
+</body>
+
+</html>

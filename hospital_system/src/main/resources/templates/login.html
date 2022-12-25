@@ -1,0 +1,227 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/global.css">
+    <script src="js/jquery.min.js"></script>
+    <title>Document</title>
+
+    <style>
+        #main {
+            display: flex;
+            align-items: center;
+            justify-content: right;
+            height: 480px;
+            background-color: #1e1e78;
+        }
+
+        #content {
+            width: 300px;
+            margin-right: 100px;
+            background-color: #e9e9f1;
+            padding: 20px;
+        }
+
+        #head span {
+            font-size: large;
+            font-weight: bold;
+            color: black;
+            margin-right: 10px;
+        }
+
+        #head span:first-child {
+            border-bottom: 3px solid black;
+        }
+
+        #head span:hover {
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .input {
+
+            margin-top: 24px;
+            border: 1px solid white;
+            padding: 3px;
+            background-color: white;
+        }
+
+        .input img {
+            width: 36px;
+            height: 36px;
+            float: left;
+        }
+
+        .input input {
+
+            outline: none;
+            border: none;
+            height: 36px;
+            width: 160px;
+            float: left;
+            text-align: center;
+        }
+
+        #check {
+            display: inline-block;
+            font-size: 11px;
+            margin-top: 9px;
+        }
+
+        #check:hover {
+            cursor: pointer;
+        }
+
+        #submit {
+            margin-top: 24px;
+            margin-bottom: 24px;
+        }
+
+        #submit input {
+
+            width: 300px;
+            height: 36px;
+            border: none;
+            background-color: #ff4400;
+        }
+
+        #submit input:hover {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="main">
+
+        <div id="content">
+
+            <div id="head">
+                <span>密码登录</span><span>短信登录</span>
+            </div>
+
+            <div id="first">
+
+
+                <div class="input clear">
+                    <img src="imgs/user_icon.png" alt="图标"><input type="text" name="username" placeholder="请输入账号">
+                </div>
+
+                <div class="input clear">
+                    <img src="imgs/password_icon.png" alt="图标"><input type="text" name="password" placeholder="请输入密码">
+                </div>
+            </div>
+
+            <div id="second" class="hidden">
+
+
+                <div class="input clear">
+                    <img src="imgs/tel_icon.png" alt="图标"><input type="text" name="telephone" placeholder="请输入手机号">
+                </div>
+
+                <div class="input clear">
+                    <img src="imgs/check_icon.png" alt="图标">
+                    <input type="text" name="checkCode" placeholder="请输入短信验证码"><span id="check">发送验证码</span>
+                </div>
+            </div>
+
+            <div id="submit">
+                <input type="submit" value="提交">
+            </div>
+
+            <div id="register">
+                <a href="" style="float: right;">免费注册</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        //点击提交，后端处理请求
+        $("#submit input").click(() => {
+
+            $.ajax({
+                data: {
+                    username: $("input[name='username']").val(),
+                    password: $("input[name='password']").val(),
+                    telephone: $("input[name='telephone']").val(),
+                    CheckCode: $("input[name='checkCode']").val()
+                },
+                url: "/login",
+                type: "get",
+                success: function (customer) {
+                    alert(customer);
+                }
+            })
+        })
+
+
+        //切换登录方式
+        $("#head span").click(function () {
+            //删除其他的下划线
+            $("#head span").css("border-bottom", "none");
+            //添加下划线
+            $(this).css("border-bottom", "3px solid black");
+            //切换具体登录方式
+            if ($("#first").hasClass("hidden")) {
+                $("#first").removeClass("hidden");
+                $("#second").addClass("hidden");
+                $("#check").html("发送验证码");
+            } else {
+                $("#second").removeClass("hidden");
+                $("#first").addClass("hidden");
+            }
+            //清除内容
+            $("input[type!='submit']").val("");
+        })
+        //发送验证码函数
+        function sendCheckCode() {
+            $.ajax(
+                {
+                    type: "Get",
+                    url: "/checkCode",
+                    dataType: "text",
+                    success: function (resp) {
+                        alert("你的验证码为：" + resp);
+                    }
+                }
+            );
+        }
+        //发送验证码，点击发送验证码，60秒后重新发送
+        function toggle() {
+            var t = 60;
+            $(this).off();//移除点击事件
+            $(this).css("cursor", "text");
+            sendCheckCode();
+            //倒计时开始
+            var out = setInterval(() => {
+                $(this).html("(" + t + ")秒后重新发送");
+                t -= 1;
+                if ($("#second").hasClass("hidden") || t < 0) {
+                    //清除倒计时
+                    clearInterval(out);
+                    //重新注册点击事件
+                    $(this).on("click", toggle);
+                    $(this).css("cursor", "pointer");
+                    if (t < 0) {
+                        //重新发送验证码，倒计时结束，选择重新发送
+                        $(this).html("重新发送");
+                    } else {
+                        $(this).html("发送验证码");
+                    }
+                }
+
+            }, 1000)
+
+        }
+        $("#check").click(toggle);
+    </script>
+</body>
+
+</html>
