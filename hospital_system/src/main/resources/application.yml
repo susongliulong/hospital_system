@@ -10,6 +10,8 @@ spring:
     host: 127.0.0.1
     port: 6379
     timeout: 6000
+  resources:
+    static-locations: classpath:/templates/
 #打印输出日志
 mybatis-plus:
   configuration:

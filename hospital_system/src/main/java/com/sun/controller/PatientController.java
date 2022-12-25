@@ -45,6 +45,8 @@ public class PatientController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+
+
     private static final Logger logger = LoggerFactory.getLogger(PatientController.class);
 
     @PostMapping("/register")
@@ -61,20 +63,20 @@ public class PatientController {
     @RequestMapping("/login")
     public R login(Patient patient, HttpServletRequest httpServletRequest){
 
-        //根据user里面封存的信息查找用户
+        //根据patient里面封存的信息查找病人
         People targetPatient = patientService.findByPatient(patient);
 
         if(targetPatient ==null){
             return R.error(null,"该用户尚未注册，请先注册");
         }
-        String password=SHACoder.encodeSHAHex(patient.getPassword());
+        String password=patient.getPassword();
         if(!password.equals(targetPatient.getPassword())){
-            return R.error(null,"用户名或者密码错误");
+            return new R(null,"101","账号或者密码错误");
         }
-        //判断用户是否在新的设备登录
+        //判断病人是否在新的设备登录
         String remoteHost = httpServletRequest.getRemoteHost();
 
-        //查询用户是否在上述设备登录
+        //查询病人是否在上述设备登录
         LambdaQueryWrapper<LoginLocation> loginLocationLambdaQueryWrapper = new LambdaQueryWrapper<>();
         loginLocationLambdaQueryWrapper.eq(LoginLocation::getLocation,remoteHost);
         loginLocationLambdaQueryWrapper.eq(LoginLocation::getUserId, targetPatient.getId());
@@ -85,19 +87,17 @@ public class PatientController {
             //生成验证码
             String code = CodeUtil.getCode(6);
 
-
             httpServletRequest.getSession().setAttribute("patient", targetPatient);
             logger.info("验证码为{}",code);
             //后期发送验证码
             Systems systems = systemsService.getById(1L);//系统配置文件
-            CodeUtil.sendCode(targetPatient.getTelephone(),code,systems);
+//            CodeUtil.sendCode(targetPatient.getTelephone(),code,systems);
 
             //将验证码存入缓存
             //            httpServletRequest.getSession().setAttribute("code",code);
-            stringRedisTemplate.opsForValue().set("code",code,60, TimeUnit.SECONDS);
-
-            //将主机信息存入数据库
-            loginLocationService.save(new LoginLocation(targetPatient.getId(),remoteHost));
+            stringRedisTemplate.opsForValue().set("code",code,360, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForValue().set("patientId",targetPatient.getId(),360, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForValue().set("remoteHost",remoteHost,360, TimeUnit.SECONDS);
             //返回结果
             return R.warning(patient,"用户第一次在该设备登录，需要进行登录验证");
         }
@@ -117,9 +117,13 @@ public class PatientController {
         HttpSession session = httpHttpServletRequest.getSession();
         String c = stringRedisTemplate.opsForValue().get("code");
         if(!code.equals(c)){
-
-            return R.error(null,"验证码不正确，请重新登录");
+            return new R(null,"101","验证码不正确，请重新登录");
         }
+        //将主机信息存入数据库
+        loginLocationService.save(new LoginLocation(
+                stringRedisTemplate.opsForValue().get("patientId"),
+                stringRedisTemplate.opsForValue().get("remoteHost")
+                ));
 
         return R.success(session.getAttribute("patient"));
     }

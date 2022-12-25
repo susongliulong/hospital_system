@@ -77,12 +77,12 @@
             cursor: pointer;
         }
 
-        #submit {
+        .submit {
             margin-top: 24px;
             margin-bottom: 24px;
         }
 
-        #submit input {
+        .submit input {
 
             width: 300px;
             height: 36px;
@@ -90,7 +90,7 @@
             background-color: #ff4400;
         }
 
-        #submit input:hover {
+        .submit input:hover {
             cursor: pointer;
         }
     </style>
@@ -110,17 +110,18 @@
 
 
                 <div class="input clear">
-                    <img src="imgs/user_icon.png" alt="图标"><input type="text" name="username" placeholder="请输入账号">
+                    <img src="imgs/user_icon.png" alt="图标"><input type="text" name="telephone" placeholder="请输入手机号"
+                        value="19860205976">
                 </div>
 
                 <div class="input clear">
-                    <img src="imgs/password_icon.png" alt="图标"><input type="text" name="password" placeholder="请输入密码">
+                    <img src="imgs/password_icon.png" alt="图标"><input type="text" name="password" placeholder="请输入密码"
+                        value="123456">
                 </div>
+
             </div>
 
             <div id="second" class="hidden">
-
-
                 <div class="input clear">
                     <img src="imgs/tel_icon.png" alt="图标"><input type="text" name="telephone" placeholder="请输入手机号">
                 </div>
@@ -131,7 +132,15 @@
                 </div>
             </div>
 
-            <div id="submit">
+            <div id="third" class="hidden">
+                <div class="input clear">
+                    <img src="imgs/check_icon.png" alt="图标"><input type="text" name="checkCode2" placeholder="请输入验证码">
+                </div>
+                <button id="checkCode"
+                    style="display: block;width: 100px;height: 30px;margin: 10px auto;background-color: #ff4400;border: none;">确认</button>
+            </div>
+
+            <div class="submit" id="submit">
                 <input type="submit" value="提交">
             </div>
 
@@ -143,20 +152,53 @@
 
     <script>
 
+        function handleResponse(resp) {
+            alert(resp.message);
+            if (resp.code == 300) {
+                $("#third").removeClass("hidden");
+                $("#first").addClass("hidden");
+                $("#second").addClass("hidden");
+                $("#submit").addClass("hidden");
+            }
+            if (resp.code == 200) {
+                localStorage.setItem('patient', resp.result);
+                location.href = 'patient.html';
+            }
+            if (resp.code == 100) {
+                location.href = 'patient_register.html';
+            }
+            if (resp.code == 101) {
+                location.href = 'login.html';
+            }
+        }
         //点击提交，后端处理请求
         $("#submit input").click(() => {
 
             $.ajax({
                 data: {
-                    username: $("input[name='username']").val(),
                     password: $("input[name='password']").val(),
                     telephone: $("input[name='telephone']").val(),
                     CheckCode: $("input[name='checkCode']").val()
                 },
-                url: "/login",
+                url: "http://localhost:8080/patient/login",
                 type: "get",
-                success: function (customer) {
-                    alert(customer);
+                success: function (resp) {
+                    handleResponse(resp);
+                }
+            })
+        })
+
+        //点击确认验证码
+        $("#checkCode").click(() => {
+
+            $.ajax({
+                data: {
+                    code: $("input[name='checkCode2']").val()
+                },
+                url: "http://localhost:8080/patient/login/code",
+                type: "get",
+                success: function (resp) {
+                    handleResponse(resp);
                 }
             })
         })
@@ -171,11 +213,15 @@
             //切换具体登录方式
             if ($("#first").hasClass("hidden")) {
                 $("#first").removeClass("hidden");
+                $("#submit").removeClass("hidden");
                 $("#second").addClass("hidden");
+                $("#third").addClass("hidden");
                 $("#check").html("发送验证码");
             } else {
                 $("#second").removeClass("hidden");
+                $("#submit").removeClass("hidden");
                 $("#first").addClass("hidden");
+                $("#third").addClass("hidden");
             }
             //清除内容
             $("input[type!='submit']").val("");
@@ -185,7 +231,7 @@
             $.ajax(
                 {
                     type: "Get",
-                    url: "/checkCode",
+                    url: "/code",
                     dataType: "text",
                     success: function (resp) {
                         alert("你的验证码为：" + resp);

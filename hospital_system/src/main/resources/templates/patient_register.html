@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="css/element-ui.css">
     <!-- import JavaScript -->
     <script src="js/element-ui.js"></script>
+    <script src="js/axios.min.js"></script>
+    <title>Element Plus demo</title>
 </head>
 
 <body>
@@ -16,14 +18,20 @@
             <el-form-item label="姓名">
                 <el-input v-model="form.name" />
             </el-form-item>
-            <el-form-item label="电话号码">
-                <el-input v-model="form.telephone" />
+            <el-form-item label="年龄">
+                <el-input v-model="form.age" />
+            </el-form-item>
+            <el-form-item label="身份证号码">
+                <el-input v-model="form.idNumber" />
             </el-form-item>
             <el-form-item label="性别">
                 <el-radio-group v-model="form.sex">
-                    <el-radio label="male">男</el-radio>
-                    <el-radio label="female">女</el-radio>
+                    <el-radio label="男">男</el-radio>
+                    <el-radio label="女">女</el-radio>
                 </el-radio-group>
+            </el-form-item>
+            <el-form-item label="电话号码">
+                <el-input v-model="form.telephone" />
             </el-form-item>
             <el-form-item label="密码">
                 <el-input v-model="form.password" />
@@ -46,15 +54,32 @@
         const App = {
             data() {
                 return {
-                    form: { name: '', telphone: '', sex: '', address: '', password: '', birthday: '' }
+                    form: {
+                        name: 'liulong',
+                        telephone: '19860205976',
+                        sex: '男',
+                        age: 12,
+                        idNumber: '340826' + '100000' + '8967',
+                        address: '北京朝阳区阳光大道123',
+                        password: '123456',
+                        birthday: '2012-12-25'
+                    },
                 }
+
             },
             methods: {
-
                 onSubmit() {
-                    console.log(this.form);
+                    axios({
+                        url: 'http://127.0.0.1:8080/patient/register',
+                        method: 'post',
+                        timeout: 2000,
+                        data: this.form,
+                    }).then(function (resp) {
+                        alert(resp.data.message);
+                        location.href = 'login.html';
+                    })
                 }
-            }
+            },
         };
         const app = Vue.createApp(App);
         app.use(ElementPlus);
