@@ -106,7 +106,7 @@
 
 
                 <div class="input clear">
-                    <img src="imgs/user_icon.png" alt="图标"><input type="text" name="telephone" placeholder="请输入手机号"
+                    <img src="imgs/user_icon.png" alt="图标"><input type="text" name="username" placeholder="请输入手机号或者工号"
                         value="19860205976">
                 </div>
 
@@ -117,21 +117,12 @@
 
             </div>
 
-
-            <div id="third" class="hidden">
-                <div class="input clear">
-                    <img src="imgs/check_icon.png" alt="图标"><input type="text" name="checkCode2" placeholder="请输入验证码">
-                </div>
-                <button id="checkCode"
-                    style="display: block;width: 100px;height: 30px;margin: 10px auto;background-color: #ff4400;border: none;">确认</button>
-            </div>
-
             <div class="submit" id="submit">
                 <input type="submit" value="提交">
             </div>
 
             <div id="register">
-                <a href="patient_register.html" style="float: right;">免费注册</a>
+                <a href="doctor_register.html" style="float: right;">免费注册</a>
             </div>
         </div>
     </div>
@@ -140,19 +131,11 @@
         //处理病人反馈
         function handleResponse(resp) {
             alert(resp.message);
-            if (resp.code == 300) {
-                $("#third").removeClass("hidden");
-                $("#first").addClass("hidden");
-                $("#submit").addClass("hidden");
-            }
             if (resp.code == 200) {
-                localStorage.setItem('patient', resp.result);
-                location.href = 'patient.html';
+                localStorage.setItem('doctor', JSON.stringify(resp.result));
+                location.href = 'doctor.html';
             }
             if (resp.code == 100) {
-                location.href = 'patient_register.html';
-            }
-            if (resp.code == 101) {
                 location.href = 'login.html';
             }
         }
@@ -162,25 +145,9 @@
             $.ajax({
                 data: {
                     password: $("input[name='password']").val(),
-                    telephone: $("input[name='telephone']").val(),
-                    CheckCode: $("input[name='checkCode']").val()
+                    name: $("input[name='username']").val(),
                 },
-                url: "http://localhost:8080/patient/login",
-                type: "get",
-                success: function (resp) {
-                    handleResponse(resp);
-                }
-            })
-        })
-
-        //点击确认验证码
-        $("#checkCode").click(() => {
-
-            $.ajax({
-                data: {
-                    code: $("input[name='checkCode2']").val()
-                },
-                url: "http://localhost:8080/patient/login/code",
+                url: "http://localhost:8080/doctor/login",
                 type: "get",
                 success: function (resp) {
                     handleResponse(resp);

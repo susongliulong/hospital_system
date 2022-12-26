@@ -2,6 +2,7 @@ package com.sun;
 
 import com.sun.entity.Doctor;
 import com.sun.entity.Patient;
+import com.sun.service.DoctorService;
 import com.sun.service.PatientService;
 import com.sun.service.SystemsService;
 import com.sun.util.CodeUtil;
@@ -20,6 +21,9 @@ class HospitalApplicationTests {
 
     @Autowired
     private PatientService patientService;
+
+    @Autowired
+    private DoctorService doctorService;
 
     @Test
     public void testSendCode() throws Exception {
@@ -52,11 +56,12 @@ class HospitalApplicationTests {
     }
 
     /**
-     * 测试插入医生数据
+     * 测试MP or方法
      */
-    public void testInsert2(){
-        Doctor doctor = new Doctor();
-
+    @Test
+    public void testMPOr(){
+        doctorService.findByPassword("19860205976","123456");
+        doctorService.findByPassword("2112340780","123456");
     }
 
 }

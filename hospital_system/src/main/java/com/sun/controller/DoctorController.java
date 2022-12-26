@@ -5,10 +5,9 @@ import com.sun.entity.Doctor;
 import com.sun.service.DoctorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/doctor")
@@ -28,6 +27,13 @@ public class DoctorController {
             return R.error(null,"操作失败");
         }
         return R.success("账号修改注册成功");
+    }
+
+    @GetMapping("/login")
+    public R login(String name, String password, HttpServletRequest httpServletRequest){
+        R result= doctorService.findByPassword(name,password);
+        httpServletRequest.getSession().getServletContext().setAttribute("doctor",result.getResult());
+        return result;
     }
 
 }
