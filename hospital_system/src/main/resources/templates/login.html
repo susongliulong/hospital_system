@@ -146,8 +146,8 @@
                 $("#submit").addClass("hidden");
             }
             if (resp.code == 200) {
-                localStorage.setItem('patient', resp.result);
-                location.href = 'patient.html';
+                localStorage.setItem('patient', JSON.stringify(resp.result));
+                location.href = 'registration.html';
             }
             if (resp.code == 100) {
                 location.href = 'patient_register.html';

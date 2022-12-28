@@ -4,6 +4,7 @@
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width,initial-scale=1.0' />
     <script src='js/vue.js'></script><!-- import CSS -->
+    <script src="js/axios.min.js"></script>
     <link rel='stylesheet' href='css/element-ui.css'> <!-- import JavaScript -->
     <script src='js/element-ui.js'></script>
     <script src="//unpkg.com/@element-plus/icons-vue"></script>
@@ -24,69 +25,41 @@
         .el-row {
             margin-bottom: 20px;
         }
+
+        .bold {
+            font-weight: bold;
+            background-color: aqua;
+            border-bottom: 1px solid black;
+        }
     </style>
 </head>
 
 <body>
     <!-- 测试环境搭建 -->
     <div id='app'>
-
+        <el-header>欢迎你 <a href="patient.html">{{patient.name}}</a></el-header>
         <el-container>
             <el-aside>
+                <p class="bold">科室信息</p>
                 <el-scrollbar max-height="500px">
                     <el-menu>
-                        <el-sub-menu index="1">
+                        <el-sub-menu :index="cure.departmentName" v-for="(cure,index) in cureMessage"
+                            v-on:click="showDoctors(cure)">
                             <template #title>
                                 <el-icon>
                                     <message />
-                                </el-icon>内科
+                                </el-icon>{{cure.departmentName}}
                             </template>
                             <el-menu-item-group>
-                                <el-menu-item index="1-1">内科 1</el-menu-item>
-                                <el-menu-item index="1-2">内科 2</el-menu-item>
-                                <el-menu-item index="1-2">内科 3</el-menu-item>
+                                <el-menu-item :index="item.id"
+                                    v-for="(item,index2) in cure.doctors">{{item.name}}</el-menu-item>
                             </el-menu-item-group>
-                            <el-sub-menu index="1-4">
-                                <template #title>内科4</template>
-                                <el-menu-item index="1-4-1">内科 4-1</el-menu-item>
-                            </el-sub-menu>
-                        </el-sub-menu>
-                        <el-sub-menu index="1">
-                            <template #title>
-                                <el-icon>
-                                    <message />
-                                </el-icon>内科
-                            </template>
-                            <el-menu-item-group>
-                                <el-menu-item index="1-1">内科 1</el-menu-item>
-                                <el-menu-item index="1-2">内科 2</el-menu-item>
-                                <el-menu-item index="1-2">内科 3</el-menu-item>
-                            </el-menu-item-group>
-                            <el-sub-menu index="1-4">
-                                <template #title>内科4</template>
-                                <el-menu-item index="1-4-1">内科 4-1</el-menu-item>
-                            </el-sub-menu>
-                        </el-sub-menu>
-                        <el-sub-menu index="1">
-                            <template #title>
-                                <el-icon>
-                                    <message />
-                                </el-icon>内科
-                            </template>
-                            <el-menu-item-group>
-                                <el-menu-item index="1-1">内科 1</el-menu-item>
-                                <el-menu-item index="1-2">内科 2</el-menu-item>
-                                <el-menu-item index="1-2">内科 3</el-menu-item>
-                            </el-menu-item-group>
-                            <el-sub-menu index="1-4">
-                                <template #title>内科4</template>
-                                <el-menu-item index="1-4-1">内科 4-1</el-menu-item>
-                            </el-sub-menu>
                         </el-sub-menu>
                     </el-menu>
                 </el-scrollbar>
             </el-aside>
             <el-container>
+                <p class="bold">医生信息</p>
                 <el-header>
                     <el-form :inline="true" class="demo-form-inline">
                         <el-form-item>
@@ -98,48 +71,24 @@
                     </el-form>
                 </el-header>
                 <el-main>
-                    <el-scrollbar max-height="400px">
+                    <el-scrollbar height="580px">
                         <el-row>
-                            <el-col v-for="(o, index) in 4" :key="o" :span="4" :offset="index > 0 ? 2 : 0">
-                                <el-card style="width: 200px;">
-                                    <img style="width: 100px;height: 100px;"
-                                        src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" />
-                                    <div style="padding: 6px">
-                                        <span>刘小龙</span>
-                                        <div class="bottom">
-                                            <p style="font-size: 12px;">
-                                                中西医结合诊治神经内科及其他内科疾病，如中风（脑梗塞、脑出血等）、眩晕、头痛、痴呆、癫痫、颤证、失眠、郁证等</p>
-                                            <el-button class="button">详情</el-button>
-                                        </div>
+                            <el-card style="width: 300px; margin-left: 20px; margin-bottom: 20px;"
+                                v-for="doctor in doctorDetails">
+                                <img style="width: 100px;height: 100px;"
+                                    src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" />
+                                <div style="padding: 6px">
+                                    <span>{{doctor.name}}</span>
+                                    <div class="bottom">
+                                        <p style="font-size: 12px;">
+                                            {{doctor.feature}}</p>
+                                        <el-button class="button" @Click="showDoctorDetail(doctor)">详情</el-button>
                                     </div>
-                                </el-card>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col v-for="(o, index) in 4" :key="o" :span="4" :offset="index > 0 ? 2 : 0">
-                                <el-card style="width: 200px;">
-                                    <img style="width: 100px;height: 100px;"
-                                        src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" />
-                                    <div style="padding: 6px">
-                                        <span>刘小龙</span>
-                                        <div class="bottom">
-                                            <p style="font-size: 12px;">
-                                                中西医结合诊治神经内科及其他内科疾病，如中风（脑梗塞、脑出血等）、眩晕、头痛、痴呆、癫痫、颤证、失眠、郁证等</p>
-                                            <el-button class="button">详情</el-button>
-                                        </div>
-                                    </div>
-                                </el-card>
-                            </el-col>
+                                </div>
+                            </el-card>
                         </el-row>
                     </el-scrollbar>
                 </el-main>
-                <el-footer style="margin: 0 auto;">
-                    <div>
-                        <el-pagination v-model:current-page="currentPage1" :page-size="100"
-                            layout="total, prev, pager, next" :total="1000" @size-change="handleSizeChange"
-                            @current-change="handleCurrentChange" />
-                    </div>
-                </el-footer>
             </el-container>
         </el-container>
     </div>
@@ -147,8 +96,33 @@
         const app = Vue.createApp({
             data() {
                 return {
-                    departments: ['内科', '外科', '神经科1', '神经科2', '神经科3', '神经科4', '神经科5', '神经科6', '神经科7', '神经科8']
+                    cureMessage: [],//医生出诊的信息
+                    doctorDetails: [],//右侧展示的医生简单信息
+                    patient: '',
                 }
+            },
+            methods: {
+                initCureMessage() {
+                    axios.get("http://localhost:8080/register/findAll").then(resp => {
+
+                        this.cureMessage = resp.data.result;
+                        this.doctorDetails = resp.data.result[0].doctors;//展示内科信息
+                        console.log(this.cureMessage);
+                    })
+                },
+                //展示医生的简单信息
+                showDoctors(cure) {
+                    this.doctorDetails = cure.doctors;
+                },
+                //展示医生的详细信息
+                showDoctorDetail(doctor) {
+                    localStorage.setItem('doctor_detail', JSON.stringify(doctor));
+                    location.href = 'doctor_detail.html';
+                },
+            },
+            created() {
+                this.initCureMessage();
+                this.patient = JSON.parse(localStorage.getItem('patient'));
             }
         });
         app.use(ElementPlus);

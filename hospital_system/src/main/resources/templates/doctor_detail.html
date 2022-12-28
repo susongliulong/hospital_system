@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <script src="js/vue.js"></script>
+    <script src="js/axios.min.js"></script>
     <!-- import CSS -->
     <link rel="stylesheet" href="css/element-ui.css">
     <!-- import JavaScript -->
@@ -23,51 +24,146 @@
                 <div class="card-header">
                     <img src="/imgs/head.png" style="width: 80px;height: 80px;">
                     <span style="display: inline-block;margin-left: 20px;">
-                        <p>姓名：刘小龙</p>
-                        <p>职称：副主任医师</p>
+                        <p>姓名：{{doctor.name}}</p>
+                        <p>职称：{{doctor.title}}</p>
                     </span>
 
                     <div id="detail">
                         <p style="font-weight: bold;">介绍</p>
-                        <p>肝病科学科带头人、学术带头人，肝病科科主任
-                            广东省名中医，主任中医师，教授，二级正高，博士生导师，全国第六批名中医药专家学术继承指导老师，广东省首批名中医师承项目指导老师，中医哲学访问学者。国家中医肝病重点专科协作组组长。广东省保健协会首席专家顾问，广东省保健协会健康服务示范基地首席专家
+                        <p>{{doctor.description}}
                         </p>
                     </div>
                     <div id="feature">
                         <p style="font-weight: bold;">擅长</p>
-                        <p>擅长：辨证施治、中医心理治疗、情志疗法、中医外治法及药膳食疗、养生保健，提出并实施多维立体系列疗法体系防治肝胆系统疾病（包括病毒性肝炎、肝纤维化、肝硬化、脂肪肝、酒精肝、药物性肝病、自身免疫性肝病等），疗效显著。
-                        </p>
+                        <p>{{doctor.feature}}
                     </div>
                 </div>
             </template>
             <div id="card-body">
-                <el-row>
-                    <el-col :span="12">
-                        2022年12月22日 上午8:30到11：30 挂号费用 ￥30元
-                    </el-col>
-                    <el-col :span="3" :offset="9">
-                        当前挂号5人<span style="font-weight: bold;">></span>
-                    </el-col>
-                </el-row>
-
-                <el-row>
-                    <el-col :span="12">
-                        2022年12月22日 下午2:30到4：30 挂号费用 ￥20元
-                    </el-col>
-                    <el-col :span="3" :offset="9">
-                        已经停诊<span style="font-weight: bold;">></span>
-                    </el-col>
+                <p v-for="item in cures" style="margin-bottom: 10px; background-color: aqua;font-weight: bold;">
+                    {{item.location}}
+                    <el-row v-for="cure in item.cures">
+                        <template v-if="cure.state==1">
+                            <el-col :span="4">
+                                <el-date-picker v-model="cure.date" type="date" readonly />
+                            </el-col>
+                            <el-col :span="4">
+                                <el-input :value="cure.time" readonly></el-input>
+                            </el-col>
+                            <el-col :span="3" :offset="1">
+                                <el-form-item label="挂号费用:">
+                                    <el-input :value="cure.price" readonly></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="3" :offset="1">
+                                <el-form-item label="挂号限制人数">
+                                    <el-input :value="cure.total" readonly></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="3" :offset="1">
+                                <el-form-item label="当前人数:">
+                                    <el-input :value="cure.number" readonly size="small"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="3" :offset="1">
+                                <el-button type="primary" size="small" style="margin-top: 3px;" plain
+                                    @Click="register(item.location,cure)">我要挂号</el-button>
+                            </el-col>
+                        </template>
+                        <template v-else>
+                            <el-col :span="3" :offset="1">
+                                {{cure.date.substring(0,10)}}
+                            </el-col>
+                            <el-col :span="3" :offset="1">
+                                {{cure.time}}
+                            </el-col>
+                            <el-col :span="3" :offset="1">
+                                挂号价格：{{cure.price}}
+                            </el-col>
+                            <el-col :span="3" :offset="1">
+                                限制人数：{{cure.total}}
+                            </el-col>
+                            <el-col :span="3" :offset="5">
+                                已经停诊
+                            </el-col>
+                        </template>
+                </p>
                 </el-row>
             </div>
         </el-card>
+
+        <el-dialog v-model="dialogFormVisible" title="挂号信息">
+            <p>医生姓名：{{doctor.name}}</p>
+            <p>医生职称：{{doctor.title}}</p>
+            <p>科室：{{cure.location}}</p>
+            <p>就诊时间段：{{cure.cure.date.substring(0,10)}} {{cure.cure.time}}</p>
+            <p>挂号金额：<span style="font-weight: bold; color: red;">￥{{cure.cure.price}}元</span></p>
+            <p>就诊人：{{patient.name}}</p>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="dialogFormVisible = false">取消</el-button>
+                    <el-button type="primary" @click="submitCure()">
+                        确认
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
+        <a href="patient.html">返回个人界面</a>
     </div>
     <script>
         const App = {
             data() {
                 return {
-                    message: "Hello Element Plus",
+                    doctor: {},
+                    cure: { 'location': '', 'cure': {} },//挂号的信息
+                    patient: {},//就诊人
+                    cures: [],//出诊数据
+                    dialogFormVisible: false,//展示确认信息
                 };
             },
+            methods: {
+                initMssage() {
+                    const traget = localStorage.getItem('doctor_detail')
+                    if (traget != null) {
+                        const doctor = JSON.parse(traget);
+                        this.doctor = doctor;
+                        '1'.su
+                    }
+                    //初始化请求信息
+                    axios({
+                        method: 'get',
+                        url: 'http://localhost:8080/cure/findById',
+                        params: {
+                            id: this.doctor.id,
+                        }
+                    }).then(resp => {
+                        this.cures = resp.data.result;
+                    })
+                    this.patient = JSON.parse(localStorage.getItem('patient'));
+                },
+                //挂号逻辑
+                register(location, cure) {
+                    this.dialogFormVisible = true;
+                    this.cure = { 'location': location, 'cure': cure };
+                },
+                //提交挂号信息
+                submitCure() {
+                    this.dialogFormVisible = false;
+                    axios({
+                        url: 'http://localhost:8080/register/register',
+                        method: 'post',
+                        params: {
+                            patientId: this.patient.id,
+                            cureId: this.cure.cure.id
+                        }
+                    }).then(resp => {
+                        alert(resp.data.message);
+                    })
+                }
+            },
+            mounted() {
+                this.initMssage();
+            }
         };
         const app = Vue.createApp(App);
         app.use(ElementPlus);

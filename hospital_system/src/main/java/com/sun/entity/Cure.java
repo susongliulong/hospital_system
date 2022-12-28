@@ -17,4 +17,6 @@ public class Cure {
     private Integer total;
     private Integer price;
     private String doctorId;//外键，医生工号
+    private Integer state;
+    private Integer number;
 }

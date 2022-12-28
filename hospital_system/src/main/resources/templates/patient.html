@@ -15,49 +15,95 @@
 <body>
     <div id="app">
         <el-form :model="form" label-width="120px">
-            <el-form-item label="姓名">
-                <el-input v-model="form.name" />
-            </el-form-item>
-            <el-form-item label="年龄">
-                <el-input v-model="form.age" />
-            </el-form-item>
-            <el-form-item label="身份证号码">
-                <el-input v-model="form.idNumber" />
-            </el-form-item>
-            <el-form-item label="性别">
-                <el-radio-group v-model="form.sex">
-                    <el-radio label="男">男</el-radio>
-                    <el-radio label="女">女</el-radio>
-                </el-radio-group>
-            </el-form-item>
-            <el-form-item label="电话号码">
-                <el-input v-model="form.telephone" />
-            </el-form-item>
-            <el-form-item label="密码">
-                <el-input v-model="form.password" />
-            </el-form-item>
-            <el-form-item label="出生日期">
-                <el-col :span="11">
-                    <el-date-picker v-model="form.birthday" type="date" placeholder="Pick a date" style="width: 100%" />
+            <p style="font-weight: bold;">个人信息</p>
+            <el-row>
+                <el-col :span="8">
+                    <el-form-item label="姓名">
+                        <el-input v-model="form.name" />
+                    </el-form-item>
                 </el-col>
-            </el-form-item>
-            <el-form-item label="家庭住址">
-                <el-input v-model="form.address" />
-            </el-form-item>
+                <el-col :span="8">
+                    <el-form-item label="就诊卡号">
+                        <el-input v-model="form.id" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="年龄">
+                        <el-input v-model="form.age" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-row>
+                <el-col :span="8">
+                    <el-form-item label="身份证号码">
+                        <el-input v-model="form.idNumber" />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="性别">
+                        <el-radio-group v-model="form.sex">
+                            <el-radio label="男">男</el-radio>
+                            <el-radio label="女">女</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="电话号码">
+                        <el-input v-model="form.telephone" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+
+                <el-col :span="8">
+                    <el-form-item label="密码">
+                        <el-input v-model="form.password" />
+                    </el-form-item>
+                </el-col>
+
+                <el-col :span="8">
+                    <el-form-item label="出生日期">
+                        <el-col :span="11">
+                            <el-date-picker v-model="form.birthday" type="date" placeholder="Pick a date"
+                                style="width: 100%" />
+                        </el-col>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="家庭住址">
+                        <el-input v-model="form.address" />
+                    </el-form-item>
+                </el-col>
+            </el-row>
             <el-form-item>
                 <el-button type="primary" @click="onSubmit">提交</el-button>
                 <el-button>取消</el-button>
             </el-form-item>
         </el-form>
 
+
         <p style="font-weight: bold;">挂号信息</p>
-        <el-table :data="tableData" border style="width: 100%" height="150px">
-            <el-table-column prop="date" label="挂号日期"></el-table-column>
+        <el-table :data="tableData" border style="width: 100%" max-height="550px">
+            <el-table-column prop="date" label="挂号日期">
+                <template #default="scope">
+                    <el-date-picker v-model="scope.row.date" type="date" readonly />
+                </template>
+            </el-table-column>
             <el-table-column prop="time" label="挂号时间"></el-table-column>
             <el-table-column prop="department" label="挂号科室"></el-table-column>
+            <el-table-column prop="location" label="科室位置"></el-table-column>
             <el-table-column prop="doctorName" label="挂号医生"></el-table-column>
             <el-table-column prop="price" label="挂号价格"></el-table-column>
+            <el-table-column fixed="right" label="操作">
+                <template #default="scope">
+                    <el-button plain type="primary" size="small" @click.prevent="deleteRow(scope.$index,scope.row.id)">
+                        删除
+                    </el-button>
+                </template>
+            </el-table-column>
         </el-table>
+        <p><el-button type="primary" @click="register()">我要挂号</el-button></p>
 
     </div>
     <script>
@@ -110,7 +156,42 @@
                     }).then(function (resp) {
                         alert(resp.data.message);
                     })
+                },
+                initTableData(patientId) {
+                    axios({
+                        url: 'http://127.0.0.1:8080/register/findByPatientId',
+                        params: {
+                            patientId: patientId
+                        },
+                        method: 'get'
+                    }).then(resp => {
+                        this.tableData = resp.data.result;
+                    })
+                },
+                //我要挂号
+                register() {
+                    location.href = 'registration.html';
+                },
+                //删除就诊信息
+                deleteRow(index, registerId) {
+                    this.tableData.splice(index, 1);
+                    axios({
+                        url: 'http://127.0.0.1:8080/register/cancel',
+                        params: {
+                            registerId: registerId
+                        },
+                        method: 'delete'
+                    }).then(resp => {
+                        alert(resp.data.message);
+                    })
                 }
+            },
+            created() {
+                const patient = JSON.parse(localStorage.getItem('patient'));
+                if (patient != null) {
+                    this.form = patient;
+                }
+                this.initTableData(patient.id);
             },
         };
         const app = Vue.createApp(App);

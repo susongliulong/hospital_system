@@ -2,6 +2,8 @@ package com.sun;
 
 import com.sun.entity.Doctor;
 import com.sun.entity.Patient;
+import com.sun.mapper.CureMapper;
+import com.sun.service.CureService;
 import com.sun.service.DoctorService;
 import com.sun.service.PatientService;
 import com.sun.service.SystemsService;
@@ -24,6 +26,10 @@ class HospitalApplicationTests {
 
     @Autowired
     private DoctorService doctorService;
+
+    @Autowired
+    private CureService cureService;
+
 
     @Test
     public void testSendCode() throws Exception {
@@ -62,6 +68,14 @@ class HospitalApplicationTests {
     public void testMPOr(){
         doctorService.findByPassword("19860205976","123456");
         doctorService.findByPassword("2112340780","123456");
+    }
+
+    /**
+     * 测试CureMapper中的FindByPatientId
+     */
+    @Test
+    public void testFindByPatientId(){
+        System.out.println(cureService.findByPatientId("3119825704"));
     }
 
 }
