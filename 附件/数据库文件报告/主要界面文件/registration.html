@@ -1,0 +1,162 @@
+<html>
+
+<head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width,initial-scale=1.0' />
+    <script src='js/vue.js'></script><!-- import CSS -->
+    <link rel='stylesheet' href='css/element-ui.css'> <!-- import JavaScript -->
+    <script src='js/element-ui.js'></script>
+    <script src="//unpkg.com/@element-plus/icons-vue"></script>
+
+    <style>
+        .demo-tabs>.el-tabs__content {
+            padding: 32px;
+            color: #6b778c;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .el-tabs--right .el-tabs__content,
+        .el-tabs--left .el-tabs__content {
+            height: 100%;
+        }
+
+        .el-row {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 测试环境搭建 -->
+    <div id='app'>
+
+        <el-container>
+            <el-aside>
+                <el-scrollbar max-height="500px">
+                    <el-menu>
+                        <el-sub-menu index="1">
+                            <template #title>
+                                <el-icon>
+                                    <message />
+                                </el-icon>内科
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="1-1">内科 1</el-menu-item>
+                                <el-menu-item index="1-2">内科 2</el-menu-item>
+                                <el-menu-item index="1-2">内科 3</el-menu-item>
+                            </el-menu-item-group>
+                            <el-sub-menu index="1-4">
+                                <template #title>内科4</template>
+                                <el-menu-item index="1-4-1">内科 4-1</el-menu-item>
+                            </el-sub-menu>
+                        </el-sub-menu>
+                        <el-sub-menu index="1">
+                            <template #title>
+                                <el-icon>
+                                    <message />
+                                </el-icon>内科
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="1-1">内科 1</el-menu-item>
+                                <el-menu-item index="1-2">内科 2</el-menu-item>
+                                <el-menu-item index="1-2">内科 3</el-menu-item>
+                            </el-menu-item-group>
+                            <el-sub-menu index="1-4">
+                                <template #title>内科4</template>
+                                <el-menu-item index="1-4-1">内科 4-1</el-menu-item>
+                            </el-sub-menu>
+                        </el-sub-menu>
+                        <el-sub-menu index="1">
+                            <template #title>
+                                <el-icon>
+                                    <message />
+                                </el-icon>内科
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="1-1">内科 1</el-menu-item>
+                                <el-menu-item index="1-2">内科 2</el-menu-item>
+                                <el-menu-item index="1-2">内科 3</el-menu-item>
+                            </el-menu-item-group>
+                            <el-sub-menu index="1-4">
+                                <template #title>内科4</template>
+                                <el-menu-item index="1-4-1">内科 4-1</el-menu-item>
+                            </el-sub-menu>
+                        </el-sub-menu>
+                    </el-menu>
+                </el-scrollbar>
+            </el-aside>
+            <el-container>
+                <el-header>
+                    <el-form :inline="true" class="demo-form-inline">
+                        <el-form-item>
+                            <el-input placeholder="输入查找医生的信息" />
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="findDoctors">查找</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-header>
+                <el-main>
+                    <el-scrollbar max-height="400px">
+                        <el-row>
+                            <el-col v-for="(o, index) in 4" :key="o" :span="4" :offset="index > 0 ? 2 : 0">
+                                <el-card style="width: 200px;">
+                                    <img style="width: 100px;height: 100px;"
+                                        src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" />
+                                    <div style="padding: 6px">
+                                        <span>刘小龙</span>
+                                        <div class="bottom">
+                                            <p style="font-size: 12px;">
+                                                中西医结合诊治神经内科及其他内科疾病，如中风（脑梗塞、脑出血等）、眩晕、头痛、痴呆、癫痫、颤证、失眠、郁证等</p>
+                                            <el-button class="button">详情</el-button>
+                                        </div>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col v-for="(o, index) in 4" :key="o" :span="4" :offset="index > 0 ? 2 : 0">
+                                <el-card style="width: 200px;">
+                                    <img style="width: 100px;height: 100px;"
+                                        src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" />
+                                    <div style="padding: 6px">
+                                        <span>刘小龙</span>
+                                        <div class="bottom">
+                                            <p style="font-size: 12px;">
+                                                中西医结合诊治神经内科及其他内科疾病，如中风（脑梗塞、脑出血等）、眩晕、头痛、痴呆、癫痫、颤证、失眠、郁证等</p>
+                                            <el-button class="button">详情</el-button>
+                                        </div>
+                                    </div>
+                                </el-card>
+                            </el-col>
+                        </el-row>
+                    </el-scrollbar>
+                </el-main>
+                <el-footer style="margin: 0 auto;">
+                    <div>
+                        <el-pagination v-model:current-page="currentPage1" :page-size="100"
+                            layout="total, prev, pager, next" :total="1000" @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange" />
+                    </div>
+                </el-footer>
+            </el-container>
+        </el-container>
+    </div>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    departments: ['内科', '外科', '神经科1', '神经科2', '神经科3', '神经科4', '神经科5', '神经科6', '神经科7', '神经科8']
+                }
+            }
+        });
+        app.use(ElementPlus);
+        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+            app.component(key, component)
+        };
+        app.mount("#app");
+    </script>
+</body>
+
+</html>

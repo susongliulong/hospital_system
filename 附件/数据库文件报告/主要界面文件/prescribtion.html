@@ -1,0 +1,78 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <script src="js/vue.js"></script>
+    <!-- import CSS -->
+    <link rel="stylesheet" href="css/element-ui.css">
+    <!-- import JavaScript -->
+    <script src="js/element-ui.js"></script>
+
+
+</head>
+
+<body>
+    <div id="app">
+        <p style="font-weight: bold;background-color: aqua;">病人基本信息：</p>
+        <el-row>
+            <el-col :span="6">姓名：刘华强</el-col>
+            <el-col :span="6">性别：男</el-col>
+            <el-col :span="6">年龄：20</el-col>
+            <el-col :span="6">就诊科室：内科</el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="6">诊疗卡号：211899098</el-col>
+            <el-col :span="6">家庭住址：广东工业大学计算机学院</el-col>
+            <el-col :span="6">联系电话：13188889999</el-col>
+            <el-col :span="6">就诊日期：2022-12-22</el-col>
+        </el-row>
+        <p style="font-weight: bold;background-color: aqua;">处方信息：</p>
+        <el-form-item label="症状描述">
+            <el-input v-model="desc" type="textarea" readonly />
+        </el-form-item>
+        <el-table :data="priscribeData" border style="width: 100%" height="200px">
+            <el-table-column prop="sort" label="编号"></el-table-column>
+            <el-table-column prop="name" label="名称"></el-table-column>
+            <el-table-column prop="usage" label="用法"></el-table-column>
+            <el-table-column prop="number" label="数量"></el-table-column>
+            <el-table-column prop="price" label="价格"></el-table-column>
+        </el-table>
+        <el-row>
+            <el-col :span="8">医生姓名：刘华强</el-col>
+            <el-col :span="8">日期：2022-12-20</el-col>
+        </el-row>
+
+    </div>
+    <script>
+
+        const App = {
+            data() {
+                return {
+                    desc: '',
+                    priscribeData: [
+                        {
+                            sort: 1,
+                            name: '阿司匹林',
+                            usage: '一日三次，每次4粒',
+                            number: 10,
+                            price: 40
+                        },
+                        {
+                            sort: 1,
+                            name: '阿司匹林',
+                            usage: '一日三次，每次4粒',
+                            number: 10,
+                            price: 40
+                        },
+                    ]
+                }
+            },
+        };
+        const app = Vue.createApp(App);
+        app.use(ElementPlus);
+        app.mount("#app");
+    </script>
+</body>
+
+</html>

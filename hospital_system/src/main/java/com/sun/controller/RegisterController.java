@@ -1,6 +1,7 @@
 package com.sun.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sun.common.R;
 import com.sun.entity.Cure;
 import com.sun.entity.Department;
@@ -111,5 +112,12 @@ public class RegisterController {
         cureService.updateById(cure);
 
         return R.success(null,"删除成功");
+    }
+
+    @PostMapping("/updateState")
+    public void updateState(String patientId,Integer cureId){
+        UpdateWrapper<Register> registerUpdateWrapper = new UpdateWrapper<>();
+        registerUpdateWrapper.eq("pat_id",patientId).eq("cure_id",cureId).set("is_succeed",1);
+        registerService.update(null,registerUpdateWrapper);
     }
 }

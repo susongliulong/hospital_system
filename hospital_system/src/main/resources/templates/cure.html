@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/element-ui.css">
     <!-- import JavaScript -->
     <script src="js/element-ui.js"></script>
-
+    <script src="js/axios.min.js"></script>
     <style>
         p {
             border-bottom: 1px solid black;
@@ -21,53 +21,85 @@
     <div id="app">
         <p>医生信息</p>
         <el-row>
-            <el-col :span="4">姓名：刘华强</el-col>
-            <el-col :span="4">科室信息：内科</el-col>
-            <el-col :span="4">日期:2022-12-24</el-col>
+            <el-col :span="4">
+                <el-form-item label="医生姓名">
+                    <el-input v-model="doctor.name" readonly />
+                </el-form-item>
+            </el-col>
+            <el-col :span="17" :offset="3">
+                <el-form-item label="出诊信息">
+                    <el-select v-model="cureId" placeholder="选择出诊信息" @change="findPatientsByCureId(cureId)"
+                        style="width: 600px;">
+                        <el-option v-for="item in cures"
+                            :label="item.date.substring(0,10)+'-'+item.time+'-'+item.department"
+                            :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-col>
         </el-row>
         <p>病人列表</p>
         <el-row>
             <el-col :span="12">
                 <el-table :data="patientData" border height="200px">
-                    <el-table-column prop="number" label="序号"></el-table-column>
+                    <el-table-column type="index" label="序号" width="100px"></el-table-column>
+                    <el-table-column prop="id" label="诊疗卡号"></el-table-column>
                     <el-table-column prop="name" label="姓名"></el-table-column>
+                    <el-table-column fixed="right" label="操作" width="120">
+                        <template #default="scope">
+                            <el-button type="primary" size="small" @click="curePatient(scope.$index)">就诊</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </el-col>
             <el-col :span="12">
                 <el-form :inline="true" class="demo-form-inline">
                     <el-form-item>
-                        <el-input placeholder="输入药物信息" />
+                        <el-input placeholder="输入药物信息" v-model="keyWord" />
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="primary" @click="findDoctors">查找</el-button>
+                        <el-button type="primary" @click="findMedicine()">查找</el-button>
                     </el-form-item>
                 </el-form>
                 <el-table :data="medicineData" border style="width: 100%" height="200px">
-                    <el-table-column prop="sort" label="编号"></el-table-column>
+                    <el-table-column prop="id" label="编号"></el-table-column>
                     <el-table-column prop="name" label="名称"></el-table-column>
-                    <el-table-column prop="desc" label="描述" style="overflow: scroll;"></el-table-column>
-                    <el-table-column prop="usage" label="用法"></el-table-column>
-                    <el-table-column prop="total" label="总量"></el-table-column>
+                    <el-table-column prop="attention" label="描述" style="overflow: scroll;"></el-table-column>
+                    <el-table-column prop="dayUsage" label="用法"></el-table-column>
+                    <el-table-column prop="number" label="总量"></el-table-column>
                     <el-table-column prop="price" label="价格"></el-table-column>
                     <el-table-column fixed="right" label="操作" width="120">
-                        <template #default>
-                            <el-button type="primary" size="small" @click="handleClick">增加</el-button>
+                        <template #default="scope">
+                            <el-button type="primary" size="small" @click="addMedicine(scope.row)">增加</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </el-col>
         </el-row>
 
-        <p>当前病人，<span style="font-weight: bold;color: yellow;">刘强</span> 用药信息</p>
-        <el-form-item label="症状描述">
-            <el-input v-model="desc" type="textarea" />
-        </el-form-item>
+        <p>当前病人，<span style="font-weight: bold;color: yellow;">{{patient.name}}</span> 用药信息</p>
+        <el-row>
+            <el-col :span="12">
+                <el-form-item label="症状描述">
+                    <el-input v-model="description" type="textarea" />
+                </el-form-item>
+            </el-col>
+            <el-col :span="9" :offset="3">
+                <el-form-item label="是否需要住院">
+                    <el-radio-group v-model="isInpatient">
+                        <el-radio label="1">是</el-radio>
+                        <el-radio label="0">否</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+            </el-col>
+        </el-row>
+
+
         <el-table :data="prescribeData" border style="width: 100%" height="200px">
-            <el-table-column prop="sort" label="编号"></el-table-column>
+            <el-table-column type="index" label="序号" width="100px"></el-table-column>
             <el-table-column prop="name" label="名称"></el-table-column>
-            <el-table-column prop="usage" label="用法">
+            <el-table-column prop="dayUsage" label="用法">
                 <template #default="scope">
-                    <el-input v-model="scope.row.usage"></el-input>
+                    <el-input v-model="scope.row.dayUsage"></el-input>
                 </template>
             </el-table-column>
             <el-table-column prop="number" label="数量">
@@ -77,8 +109,8 @@
             </el-table-column>
             <el-table-column prop="price" label="价格"></el-table-column>
             <el-table-column fixed="right" label="操作" width="120">
-                <template #default>
-                    <el-button type="primary" size="small" @click="handleClick">删除</el-button>
+                <template #default="scope">
+                    <el-button type="primary" size="small" @click="deleteMedicine(scope.$index)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -86,93 +118,196 @@
         <el-dialog v-model="dialogTableVisible" title="处方信息预览" style="width: 80%;">
             <p style="font-weight: bold;background-color: aqua;">病人基本信息：</p>
             <el-row>
-                <el-col :span="6">姓名：刘华强</el-col>
-                <el-col :span="6">性别：男</el-col>
-                <el-col :span="6">年龄：20</el-col>
-                <el-col :span="6">就诊科室：内科</el-col>
+                <el-col :span="6">姓名：{{patient.name}}</el-col>
+                <el-col :span="6">性别：{{patient.sex}}</el-col>
+                <el-col :span="6">年龄：{{patient.age}}</el-col>
+                <el-col :span="6">就诊科室：{{targetCure.department}}</el-col>
             </el-row>
             <el-row>
-                <el-col :span="6">诊疗卡号：211899098</el-col>
-                <el-col :span="6">家庭住址：广东工业大学计算机学院</el-col>
-                <el-col :span="6">联系电话：13188889999</el-col>
-                <el-col :span="6">就诊日期：2022-12-22</el-col>
+                <el-col :span="8">诊疗卡号：{{patient.id}}</el-col>
+                <el-col :span="8">联系电话：{{patient.telephone}}</el-col>
+                <el-col :span="8">就诊日期：
+                    <el-date-picker v-model="targetCure.date" type="date" readonly />
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="24">家庭住址：{{patient.address}}</el-col>
             </el-row>
             <p style="font-weight: bold;background-color: aqua;">处方信息：</p>
-            <el-form-item label="症状描述">
-                <el-input v-model="desc" type="textarea" readonly />
-            </el-form-item>
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item label="症状描述">
+                        <el-input v-model="description" type="textarea" readonly />
+                    </el-form-item>
+                </el-col>
+                <el-col :span="9" :offset="3">
+                    <el-form-item label="是否需要住院">
+                        <el-input :value="isInpatient=='0'?'不需要':'需要'" type="textarea" readonly />
+                    </el-form-item>
+                </el-col>
+            </el-row>
             <el-table :data="prescribeData" border style="width: 100%" height="200px">
-                <el-table-column prop="sort" label="编号"></el-table-column>
+                <el-table-column type="index" label="序号" width="100px"></el-table-column>
                 <el-table-column prop="name" label="名称"></el-table-column>
-                <el-table-column prop="usage" label="用法"></el-table-column>
+                <el-table-column prop="dayUsage" label="用法"></el-table-column>
                 <el-table-column prop="number" label="数量"></el-table-column>
                 <el-table-column prop="price" label="价格"></el-table-column>
             </el-table>
             <el-row>
-                <el-col :span="8">医生姓名：刘华强</el-col>
-                <el-col :span="8">日期：2022-12-20</el-col>
+                <el-col :span="8">医生姓名：{{doctor.name}}</el-col>
+                <el-col :span="8">日期：
+                    <el-date-picker v-model="targetCure.date" type="date" readonly />
+                </el-col>
             </el-row>
+
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button type="primary" @click="onSubmit()">
+                        提交确认
+                    </el-button>
+                </span>
+            </template>
         </el-dialog>
-        <el-button type="primary" @click="dialogTableVisible = true">打印预览</el-button>
-        <el-button type="primary" @click="handleClick">提交确认</el-button>
+        <el-button type="primary" @click="open()">打印预览</el-button>
     </div>
     <script>
 
         const App = {
             data() {
                 return {
-                    patientData: [{ number: 1, name: '张山' }, { number: 2, name: '张山' }, { number: 3, name: '张山' },],
-                    medicineData: [
-                        {
-                            sort: 1,
-                            name: '阿司匹林',
-                            desc: "解热镇痛药，用于发热、疼痛及类风湿关节炎等",
-                            usage: '一日三次，每次4粒',
-                            total: 1000,
-                            price: '￥40元'
-                        },
-                        {
-                            sort: 1,
-                            name: '阿司匹林',
-                            desc: "解热镇痛药，用于发热、疼痛及类风湿关节炎等",
-                            usage: '一日三次，每次4粒',
-                            total: 1000,
-                            price: '￥40元'
-                        },
-                        {
-                            sort: 1,
-                            name: '阿司匹林',
-                            desc: "解热镇痛药，用于发热、疼痛及类风湿关节炎等",
-                            usage: '一日三次，每次4粒',
-                            total: 1000,
-                            price: '￥40元'
-                        },
-                    ],
-                    desc: '',
+                    patientData: [],
+                    medicineData: [],
+                    description: '咳嗽，乏力，喉咙管痛，胳膊痛，腿痛，腰痛，眼睛痛，手指痛，脚趾痛，屁股痛你这个症状很少见，决定以你的名字命名',
                     dialogTableVisible: false,
-                    prescribeData: [
-                        {
-                            sort: 1,
-                            name: '阿司匹林',
-                            usage: '一日三次，每次4粒',
-                            number: 10,
-                            price: 40
-                        },
-                        {
-                            sort: 1,
-                            name: '阿司匹林',
-                            usage: '一日三次，每次4粒',
-                            number: 10,
-                            price: 40
-                        },
-                    ]
+                    prescribeData: [],
+                    isInpatient: '0',//是否需要住院
+                    doctor: {},//医生个人信息
+                    patient: {},//当前就诊病人信息
+                    date: [],//当前出诊日期
+                    cures: [],//医生出诊信息
+                    cureId: '',//具体的出诊信息的id
+                    targetCure: '',//根据cureId查询出来的目标就诊信息
+                    keyWord: '',//关键词查询药物信息
+
                 }
 
             },
-            methods: {
-                open() {
+            //钩子函数
+            created() {
+                const doctor = JSON.parse(localStorage.getItem('doctor'));
+                this.doctor = doctor;
+                this.initCures(doctor.id);
 
-                }
+                axios({
+                    url: 'http://localhost:8080/medicine/findAll',
+                    method: 'get',
+                }).then(resp => {
+                    this.medicineData = resp.data.result;
+                });
+            },
+            methods: {
+                //就诊病人
+                curePatient(index) {
+                    this.patient = this.patientData[index];
+                    this.patientData.splice(index, 1);
+                    //将该病人的is_finished字段修改为1，表示已经医生出诊完毕
+                    this.deletePatient(this.patient.id, this.cureId);
+                },
+                deletePatient(patientId, cureId) {
+                    axios({
+                        url: 'http://localhost:8080/register/updateState',
+                        method: 'post',
+                        params: {
+                            patientId: patientId,
+                            cureId: cureId,
+                        }
+                    }).then(resp => {
+                        this.prescribeData = [];
+                    })
+                },
+                //打印预览
+                open() {
+                    this.dialogTableVisible = true;
+                    for (let index = 0; index < this.cures.length; index++) {
+                        if (this.cures[index].id == this.cureId) {
+                            this.targetCure = this.cures[index];
+                            break;
+                        }
+                    }
+                },
+                //提交处方信息
+                onSubmit() {
+                    this.dialogTableVisible = false;
+                    const medicines = this.prescribeData;
+                    console.log(medicines);
+                    axios({
+                        url: 'http://localhost:8080/prescribe/addPrescribe',
+                        method: 'post',
+                        params: {
+                            doctorId: this.doctor.id,
+                            patientId: this.patient.id,
+                            description: this.description,//症状描述
+                            date: this.targetCure.date,//处方日期
+                            isInPatient: this.isInpatient,//是否需要住院
+                        },
+                        data: {
+                            medicines: JSON.stringify(medicines) //保存用药信息，包括药品id和数量
+                        }
+                    }).then(resp => {
+                        alert(resp.data.message);
+                    })
+                },
+                //新增药物信息
+                addMedicine(medicine) {
+                    // console.log(medicine);
+                    this.prescribeData.push({
+                        id: medicine.id,
+                        name: medicine.name,
+                        dayUsage: medicine.dayUsage,
+                        number: 3,
+                        price: medicine.price
+                    })
+                },
+                //删除药物信息
+                deleteMedicine(index) {
+                    this.prescribeData.splice(index, 1);
+                },
+                //搜索药物信息
+                findMedicine() {
+                    axios({
+                        url: 'http://localhost:8080/medicine/findMedicinesByKeyword',
+                        type: 'get',
+                        params: {
+                            keyWord: this.keyWord
+                        }
+                    }).then(resp => {
+                        this.medicineData = resp.data.result;
+                    })
+                },
+                //初始化医生的出诊信息
+                initCures(doctorId) {
+                    axios({
+                        url: 'http://localhost:8080/cure/findCuresByDoctorId',
+                        method: 'get',
+                        params: {
+                            doctorId: doctorId,
+                        }
+                    }).then(resp => {
+                        this.cures = resp.data.result;
+                    });
+                },
+                //查询病人列表
+                findPatientsByCureId(cureId) {
+                    axios({
+                        url: 'http://localhost:8080/cure/findByCureId',
+                        method: 'get',
+                        params: {
+                            cureId: cureId,
+                        }
+                    }).then(resp => {
+                        this.patientData = resp.data.result;
+                    })
+                },
             },
         };
         const app = Vue.createApp(App);

@@ -4,7 +4,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 1234
-    url: jdbc:mysql://localhost:3306/hospital3119009062liulong?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3306/hospital3119009062liulong?useUnicode=true&characterEncoding=utf-8
   redis:
     database: 0
     host: 127.0.0.1

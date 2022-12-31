@@ -3,6 +3,8 @@ package com.sun.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sun.entity.Cure;
 import com.sun.entity.Department;
+import com.sun.entity.Patient;
+import com.sun.entity.vo.PatientVO;
 import com.sun.entity.vo.RegisterVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -18,4 +20,10 @@ public interface CureMapper extends BaseMapper<Cure> {
             "WHERE cure.id=register.cure_id AND cure.department=department.name\n" +
             "AND cure.doctor_id=doctor.id AND register.pat_id=#{patientId}")
     List<RegisterVO> findByPatientId(String patientId);
+
+    @Select("SELECT patient.*,register.is_succeed\n" +
+            "FROM patient3119009062liulong patient,register3119009062liulong register\n" +
+            "WHERE patient.`id`=register.`pat_id`\n" +
+            "AND register.`cure_id`=#{cureId}")
+    List<PatientVO> findByCureId(Integer cureId);
 }

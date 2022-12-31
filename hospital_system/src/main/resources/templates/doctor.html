@@ -141,7 +141,8 @@
         <el-table :data="tableData" border style="width: 100%" max-height="300px">
             <el-table-column prop="date" label="出诊日期">
                 <template #default="scope">
-                    <el-date-picker v-model="scope.row.date" type="date" placeholder="请选择日期" />
+                    <el-date-picker v-model="scope.row.date" type="date" placeholder="请选择日期"
+                        :default-time="defaultTime" />
                 </template>
             </el-table-column>
             <el-table-column prop="time" label="出诊时间">
@@ -181,6 +182,7 @@
         </el-table>
         <el-button type="primary" @click="onAddItem">新增</el-button>
         <el-button type="primary" @click="submitCureMessage">确认修改</el-button>
+        <p>进入个人问诊界面 <a href="cure.html">进入</a></p>
     </div>
     <script>
         const App = {
@@ -201,8 +203,9 @@
                         feature: '擅长：辨证施治、中医心理治疗、情志疗法、中医外治法及药膳食疗、养生保健，提出并实施多维立体系列疗法体系防治肝胆系统疾病（包括病毒性肝炎、肝纤维化、肝硬化、脂肪肝、酒精肝、药物性肝病、自身免疫性肝病等），疗效显著',
                         degree: '博士',
                         depId: '',//部门id
-                        title: '主治医师'//职称
+                        title: '主治医师',//职称
                     },
+                    defaultTime: new Date(2023, 1, 2, 12, 59, 59),//默认日期时间选项
                     tableData: [
                         {
                             date: '2022-12-14',
@@ -244,7 +247,7 @@
                         }
                     }
                     this.tableData.push({
-                        date: new Date(),
+                        date: this.defaultTime,
                         time: '上午8：30到11：30',
                         department: this.departmentName,
                         total: 40,

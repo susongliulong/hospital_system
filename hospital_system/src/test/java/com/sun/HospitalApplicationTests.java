@@ -1,18 +1,15 @@
 package com.sun;
 
-import com.sun.entity.Doctor;
 import com.sun.entity.Patient;
-import com.sun.mapper.CureMapper;
-import com.sun.service.CureService;
-import com.sun.service.DoctorService;
-import com.sun.service.PatientService;
-import com.sun.service.SystemsService;
+import com.sun.mapper.MedicineMapper;
+import com.sun.service.*;
 import com.sun.util.CodeUtil;
 import com.sun.util.SHACoder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
 import java.util.Date;
 
 @SpringBootTest
@@ -29,6 +26,12 @@ class HospitalApplicationTests {
 
     @Autowired
     private CureService cureService;
+
+    @Autowired
+    private MedicineService medicineService;
+
+    @Resource
+    private MedicineMapper medicineMapper;
 
 
     @Test
@@ -76,6 +79,15 @@ class HospitalApplicationTests {
     @Test
     public void testFindByPatientId(){
         System.out.println(cureService.findByPatientId("3119825704"));
+    }
+
+    @Test
+    public void testFindMedicinesByKeyword(){
+
+    }
+    @Test
+    public void testUpdateMedicine(){
+
     }
 
 }

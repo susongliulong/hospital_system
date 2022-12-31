@@ -5,7 +5,9 @@ import com.sun.common.R;
 import com.sun.entity.Cure;
 import com.sun.entity.Department;
 import com.sun.entity.Doctor;
+import com.sun.entity.Patient;
 import com.sun.entity.vo.CureVO;
+import com.sun.entity.vo.PatientVO;
 import com.sun.service.CureService;
 import com.sun.service.DepartmentService;
 import com.sun.service.DoctorService;
@@ -64,7 +66,7 @@ public class CureController {
      * @param id
      * @return
      */
-    @GetMapping("findById")
+    @GetMapping("/findById")
     public R findByDoctorId(String id){
         List<Cure> totalCures = cureService.list(new LambdaQueryWrapper<Cure>().eq(Cure::getDoctorId, id));
         LinkedList<CureVO> result = new LinkedList<>();
@@ -81,5 +83,25 @@ public class CureController {
             result.add(cureVO);
         }
         return R.success(result);
+    }
+
+    /**
+     * 根据doctorId查询医生的出诊信息
+     * @param doctorId
+     * @return
+     */
+    @GetMapping("/findCuresByDoctorId")
+    public R findCuresByDoctorId(String doctorId){
+        List<Cure> list = cureService.list(new LambdaQueryWrapper<Cure>().eq(Cure::getDoctorId, doctorId));
+        return R.success(list);
+    }
+
+    @GetMapping("/findByCureId")
+    public R findPatientsByCureId(Integer cureId){
+        List<PatientVO>list=cureService.findByCureId(cureId);
+        list = list.stream()
+                .filter(patient -> patient.getIsSucceed() == 0)
+                .collect(Collectors.toList());
+        return R.success(list);
     }
 }

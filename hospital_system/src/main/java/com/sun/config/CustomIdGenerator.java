@@ -2,8 +2,10 @@ package com.sun.config;
 
 
 import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
+import com.sun.common.LocalIdThread;
 import com.sun.entity.Doctor;
 import com.sun.entity.Patient;
+import com.sun.entity.Prescribe;
 import com.sun.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +21,18 @@ import java.text.SimpleDateFormat;
 public class CustomIdGenerator implements IdentifierGenerator {
 
 
+    @Autowired
+    private LocalIdThread<Integer> localIdThread;
+
     @Override
     public Number nextId(Object entity) {
-        return null;
+
+        int id=0;
+        if(entity.getClass()== Prescribe.class){
+            id=Integer.parseInt( StringUtil.generateRandomString(6));
+            localIdThread.set(id);
+        }
+        return id;
     }
 
     @Override

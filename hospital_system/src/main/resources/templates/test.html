@@ -19,8 +19,26 @@
         const App = {
             data() {
                 return {
+                    doctorId: '',
+                    patientId: '',
+                    description: '',//症状描述
+                    date: '',//处方日期
+                    isInPatient: '',//是否需要住院
+                    medicines: [//保存用药信息，包括药品id和数量
+                        {
+                            id: '',
+                            number: '',
+                            dayUsage: '',
+                        },
+                        {
+                            id: '',
+                            number: '',
+                            dayUsage: '',
+                        },
+                    ]
+
                 }
-            },
+            }
         };
         const app = Vue.createApp(App);
         app.use(ElementPlus);

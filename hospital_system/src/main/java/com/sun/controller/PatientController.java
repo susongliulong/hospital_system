@@ -87,7 +87,7 @@ public class PatientController {
             //生成验证码
             String code = CodeUtil.getCode(6);
 
-            httpServletRequest.getSession().setAttribute("patient", targetPatient);
+            httpServletRequest.getSession().getServletContext().setAttribute("patient", targetPatient);
             logger.info("验证码为{}",code);
             //后期发送验证码
             Systems systems = systemsService.getById(1L);//系统配置文件
@@ -125,7 +125,7 @@ public class PatientController {
                 stringRedisTemplate.opsForValue().get("remoteHost")
                 ));
 
-        return R.success(session.getAttribute("patient"));
+        return R.success(session.getServletContext().getAttribute("patient"));
     }
 
     @GetMapping("/test")
