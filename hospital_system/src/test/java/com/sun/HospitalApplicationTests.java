@@ -2,6 +2,7 @@ package com.sun;
 
 import com.sun.entity.Patient;
 import com.sun.mapper.MedicineMapper;
+import com.sun.mapper.PrescribeMapper;
 import com.sun.service.*;
 import com.sun.util.CodeUtil;
 import com.sun.util.SHACoder;
@@ -32,6 +33,9 @@ class HospitalApplicationTests {
 
     @Resource
     private MedicineMapper medicineMapper;
+
+    @Resource
+    private PrescribeMapper prescribeMapper;
 
 
     @Test
@@ -86,8 +90,13 @@ class HospitalApplicationTests {
 
     }
     @Test
-    public void testUpdateMedicine(){
-
+    public void testPrescribeMapper(){
+        prescribeMapper.insertData(123,123);
     }
 
+    @Test
+    public void testFindPrescribeId(){
+        prescribeMapper.findPrescribeId(25);
+        prescribeMapper.findDescription(609563);
+    }
 }

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/element-ui.css">
     <!-- import JavaScript -->
     <script src="js/element-ui.js"></script>
+    <script src="js/jquery.min.js"></script>
 </head>
 
 <body>
@@ -15,6 +16,8 @@
 
     </div>
     <script>
+        console.log($.param({ a: [1, 2, 3] }, true));
+        console.log(decodeURIComponent($.param({ a: [1, 2, 3] }, true)));
 
         const App = {
             data() {

@@ -211,8 +211,8 @@
                     this.patient = this.patientData[index];
                     this.patientData.splice(index, 1);
                     //将该病人的is_finished字段修改为1，表示已经医生出诊完毕
-                    this.deletePatient(this.patient.id, this.cureId);
                 },
+                //删除病人信息
                 deletePatient(patientId, cureId) {
                     axios({
                         url: 'http://localhost:8080/register/updateState',
@@ -239,7 +239,8 @@
                 onSubmit() {
                     this.dialogTableVisible = false;
                     const medicines = this.prescribeData;
-                    console.log(medicines);
+                    // console.log(medicines);
+                    this.deletePatient(this.patient.id, this.cureId);
                     axios({
                         url: 'http://localhost:8080/prescribe/addPrescribe',
                         method: 'post',
@@ -249,6 +250,7 @@
                             description: this.description,//症状描述
                             date: this.targetCure.date,//处方日期
                             isInPatient: this.isInpatient,//是否需要住院
+                            cureId: this.cureId,
                         },
                         data: {
                             medicines: JSON.stringify(medicines) //保存用药信息，包括药品id和数量
