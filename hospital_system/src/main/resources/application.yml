@@ -10,14 +10,23 @@ spring:
     host: 127.0.0.1
     port: 6379
     timeout: 6000
-  resources:
-    static-locations: classpath:/templates/
+  servlet:
+    multipart: # 上传附件的最大值
+      max-file-size: 5MB
+      max-request-size: 10MB
+    web:
+      resources:
+        static-locations: classpath:/templates/,classpath:/static/
+
 #打印输出日志
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 server:
   port: 8080
+
+liulong:
+  path: D:\10.软件工程课程\软件工程大三下\软件架构\test3\file-upload-and-download-master\imgs\
 
 
 

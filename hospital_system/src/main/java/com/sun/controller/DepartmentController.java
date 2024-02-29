@@ -13,9 +13,9 @@ public class DepartmentController {
     @Autowired
     private DepartmentService departmentService;
 
+
     @GetMapping("/list")
     public R findAll(){
-
         return R.success(departmentService.list());
     }
 }

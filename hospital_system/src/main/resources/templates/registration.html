@@ -37,7 +37,10 @@
 <body>
     <!-- 测试环境搭建 -->
     <div id='app'>
-        <el-header>欢迎你 <a href="patient.html">{{patient.name}}</a></el-header>
+        <el-header>
+            欢迎你 <a href="patient.html">{{patient.name}}</a>
+            <img :src="patient.imageUrl" alt="" width="40px" height="40px">
+        </el-header>
         <el-container>
             <el-aside>
                 <p class="bold">科室信息</p>
@@ -75,8 +78,8 @@
                         <el-row>
                             <el-card style="width: 300px; margin-left: 20px; margin-bottom: 20px;"
                                 v-for="doctor in doctorDetails">
-                                <img style="width: 100px;height: 100px;"
-                                    src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" />
+                                <!-- <img style="width: 100px;height: 100px;"
+                                    src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" /> -->
                                 <div style="padding: 6px">
                                     <span>{{doctor.name}}</span>
                                     <div class="bottom">

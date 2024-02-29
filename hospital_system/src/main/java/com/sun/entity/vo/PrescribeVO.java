@@ -1,9 +1,7 @@
 package com.sun.entity.vo;
 
-import com.sun.entity.Medicine;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 @Data

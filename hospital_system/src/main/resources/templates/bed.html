@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <script src="js/vue.js"></script>
+    <script src="js/axios.min.js"></script>
+    <script src="js/jquery.min.js"></script>
     <!-- import CSS -->
     <link rel="stylesheet" href="css/element-ui.css">
     <!-- import JavaScript -->
@@ -44,7 +46,11 @@
                     {{scope.row.state?'已分配':'未分配'}}
                 </template>
             </el-table-column>
-            <el-table-column label="价格（每天）" prop="price"></el-table-column>
+            <el-table-column label="价格（每天）">
+                <template #default="scope">
+                    <el-input v-model="scope.row.price" />
+                </template>
+            </el-table-column>
             <el-table-column align="right">
                 <template #header>
                     <el-row>
@@ -59,46 +65,7 @@
                 </template>
                 <template #default="scope">
                     <el-button v-if="!scope.row.state" size="small"
-                        @click="allocateBed(scope.$index, scope.row)">分配床位</el-button>
-                    <!-- 分配床位信息列表 -->
-                    <el-dialog v-model="bedFormVisible" title="分配床位">
-                        <el-form>
-                            <p>病人列表，选择病人</p>
-                            <el-row>
-                                <el-col :span="8">
-                                    <el-input v-model="searchPatientContent" size="small" placeholder="搜索病人信息" />
-                                </el-col>
-                                <el-col :span="4">
-                                    <el-button size="small" type="primary" @click="searchPatient">搜索</el-button>
-                                </el-col>
-                            </el-row>
-                            <el-row style="margin-top: 10px;">
-                                <el-col :span="8">
-                                    <el-select v-model="patient_bed" placeholder="选择病人信息">
-                                        <el-option value="1234" label="1234-刘华强">
-                                        </el-option>
-                                        <el-option value="12345" label="12345-刘华强"></el-option>
-                                        <el-option value="12346" label="12346-刘华强">
-                                        </el-option>
-                                    </el-select>
-                                </el-col>
-                            </el-row>
-                            <p>床位信息</p>
-                            <el-row>
-                                <el-col :span="8">编号:{{scope.row.id}}</el-col>
-                                <el-col :span="8">位置:{{scope.row.building}}-{{scope.row.location}}</el-col>
-                                <el-col :span="8">价格:{{scope.row.price}}</el-col>
-                            </el-row>
-                        </el-form>
-                        <template #footer>
-                            <span class="dialog-footer">
-                                <el-button @click="bedFormVisible = false">取消</el-button>
-                                <el-button type="primary" @click="addPatientToBed">
-                                    提交
-                                </el-button>
-                            </span>
-                        </template>
-                    </el-dialog>
+                        @click="allocateBed(scope.$index,scope.row)">分配床位</el-button>
                     <el-button v-if="scope.row.state" size="small" type="danger"
                         @click="recycleBed(scope.$index, scope.row)">回收床位</el-button>
                 </template>
@@ -106,6 +73,7 @@
         </el-table>
 
         <el-button type="primary" @click="dialogFormVisible = true">添加床位信息</el-button>
+        <el-button type="primary" @click="onSubmit()">提交确认</el-button>
         <!-- 床位信息控制 -->
         <el-dialog v-model="dialogFormVisible" title="床位信息">
             <el-form :model="form">
@@ -135,8 +103,44 @@
             <template #footer>
                 <span class="dialog-footer">
                     <el-button @click="dialogFormVisible = false">取消</el-button>
-                    <el-button type="primary" @click="addBed">
+                    <el-button type="primary" @click="addBed()">
                         添加
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
+        <!-- 分配床位信息列表 -->
+        <el-dialog v-model="bedFormVisible" title="分配床位">
+            <el-form>
+                <p>病人列表，选择病人</p>
+                <el-row>
+                    <el-col :span="8">
+                        <el-input v-model="searchPatientContent" size="small" placeholder="搜索病人信息" />
+                    </el-col>
+                    <el-col :span="4">
+                        <el-button size="small" type="primary" @click="searchPatient">搜索</el-button>
+                    </el-col>
+                </el-row>
+                <el-row style="margin-top: 10px;">
+                    <el-col :span="8">
+                        <el-select v-model="patient_bed" placeholder="选择病人信息">
+                            <el-option v-for="item in patients" :value="item.id" :label="item.id+'-'+item.name">
+                            </el-option>
+                        </el-select>
+                    </el-col>
+                </el-row>
+                <p>床位信息</p>
+                <el-row>
+                    <el-col :span="8">编号:{{targetBed.id}}</el-col>
+                    <el-col :span="8">位置:{{targetBed.building}}-{{targetBed.location}}</el-col>
+                    <el-col :span="8">价格:{{targetBed.price}}</el-col>
+                </el-row>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="bedFormVisible = false">取消</el-button>
+                    <el-button type="primary" @click="addPatientToBed()">
+                        提交
                     </el-button>
                 </span>
             </template>
@@ -149,20 +153,6 @@
             data() {
                 return {
                     tableData: [
-                        {
-                            id: 101,
-                            building: '西2',
-                            location: '547',
-                            state: true,
-                            price: 40
-                        },
-                        {
-                            id: 102,
-                            building: '西1',
-                            location: '545',
-                            state: false,
-                            price: 50
-                        }
                     ],
                     searchContent: '',//搜索床位信息
                     searchPatientContent: '',//搜索病人信息
@@ -170,11 +160,17 @@
                     bedFormVisible: false,
                     form: [
                         {
-                            id: '', building: '', location: '', price: ''
+                            id: '', building: '西1', location: '', price: 40
                         }
                     ],
-                    patient_bed: ''//病人床位信息
+                    patient_bed: '',//病人床位信息
+                    targetBed: '',//目标床位信息
+                    patients: [],//住院病人数据
+                    targetBedIndex: '',
                 }
+            },
+            created() {
+                this.initTableData();
             },
             methods: {
                 //添加床位
@@ -188,20 +184,69 @@
                         price: bed.price,
                         state: false
                     });
+                    this.onSubmit();
                     this.form = []
+                },
+                initTableData() {
+                    axios({
+                        url: 'http://localhost:8080/bed/findAll',
+                        method: 'get',
+                    }).then(resp => {
+                        this.tableData = resp.data.result;
+                    });
+                },
+                onSubmit() {
+
+                    axios({
+                        url: 'http://localhost:8080/bed/addBed',
+                        method: 'post',
+                        data: {
+                            beds: JSON.stringify(this.tableData)
+                        }
+                    }).then(resp => {
+                        alert(resp.data.message);
+                    })
                 },
                 //分配床位
                 allocateBed(index, row) {
-                    this.tableData[index].state = 1;
                     this.bedFormVisible = true;
+                    this.targetBed = row;
+                    this.targetBedIndex = index;
+                    axios({
+                        url: 'http://localhost:8080/bed/findInPatients',
+                        mathod: 'get'
+                    }).then(resp => {
+                        this.patients = resp.data.result;
+                    });
                 },
                 //将床位分配给病人，最终完成提交
                 addPatientToBed() {
                     this.bedFormVisible = false;
+                    axios({
+                        url: 'http://localhost:8080/bed/allocateBed',
+                        method: 'post',
+                        params: {
+                            patientId: this.patient_bed,
+                            bedId: this.targetBed.id
+                        }
+                    }).then(resp => {
+                        console.log(resp.data.message);
+                        let index = 0;
+                        this.tableData[this.targetBedIndex].state = 1;
+                    })
                 },
                 //回收床位
                 recycleBed(index, bed) {
                     this.tableData[index].state = 0;
+                    axios({
+                        url: 'http://localhost:8080/bed/deletePatientToBed',
+                        method: 'delete',
+                        params: {
+                            bedId: bed.id
+                        }
+                    }).then(resp => {
+                        alert(resp.data.message);
+                    })
                 },
                 //搜索床位内容
                 search() {

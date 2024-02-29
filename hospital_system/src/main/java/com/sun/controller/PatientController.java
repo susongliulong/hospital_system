@@ -10,7 +10,6 @@ import com.sun.service.LoginLocationService;
 import com.sun.service.SystemsService;
 import com.sun.service.PatientService;
 import com.sun.util.CodeUtil;
-import com.sun.util.SHACoder;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +90,7 @@ public class PatientController {
             logger.info("验证码为{}",code);
             //后期发送验证码
             Systems systems = systemsService.getById(1L);//系统配置文件
-//            CodeUtil.sendCode(targetPatient.getTelephone(),code,systems);
+            CodeUtil.sendCode(targetPatient.getTelephone(),code,systems);
 
             //将验证码存入缓存
             //            httpServletRequest.getSession().setAttribute("code",code);
